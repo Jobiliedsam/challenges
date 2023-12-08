@@ -4,38 +4,20 @@ public static class Rpn
 {
     public static decimal Calculator(string expression)
     {
-        var stack = new Stack<decimal>();
+        var operandStack = new Stack<decimal>();
     
-        foreach (var tokens in TokenizerRpnExpression(expression))
+        foreach (var token in TokenizerRpnExpression(expression))
         {
-            var operand = decimal.TryParse(tokens, out decimal number) ? 
+            var operand = decimal.TryParse(token, out decimal number) ? 
                 number : 
-                PerformOperation(tokens, stack);
+                Operation.Perform(token, operandStack);
             
-            stack.Push(operand);
+            operandStack.Push(operand);
         }
         
-        return stack.Pop();
+        return operandStack.Pop();
     }
-    
-    private static string[] TokenizerRpnExpression(string expression) => 
+
+    private static string[] TokenizerRpnExpression(string expression) =>
         expression.Split(' ');
-
-    static decimal PerformOperation(string @operator, Stack<decimal> numbers) =>
-        @operator switch
-        {
-            "+" => numbers.Pop() + numbers.Pop(),
-            "-" => InvertOperands(numbers.Pop(), numbers.Pop(), @operator),
-            "*" => numbers.Pop() * numbers.Pop(),
-            "/" => InvertOperands(numbers.Pop(), numbers.Pop(), @operator),
-            _ => throw new InvalidOperationException()
-        };
-
-    static decimal InvertOperands(decimal firstNumber, decimal secondNumber, string @operator) =>
-        @operator switch
-        {
-            "-" => secondNumber - firstNumber,
-            "/" => secondNumber / firstNumber,
-            _ => throw new InvalidOperationException()
-        };
 }
